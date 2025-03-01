@@ -92,8 +92,7 @@ FROM "film" AS f
 GROUP BY "title";
 
 -- 10. Encuentra la mayor y menor duración de una película de nuestra BBDD.
-
-SELECT 
+SELECT
 		MAX("length") AS mayor_duracion,
 		MIN("length") AS menor_duracion
 FROM "film" AS f;
@@ -145,28 +144,264 @@ LIMIT 10;
 
 -- 17. Encuentra el nombre y apellido de los actores que aparecen en la película con título ‘Egg Igby’.
 
-SELECT CONCAT(a."first_name",' ',a."last_name") AS nombre_cliente,
+SELECT CONCAT(a."first_name",' ',a."last_name"),
+		f."title"
 FROM "actor" AS a
-INNER JOIN "film" AS f
-ON a."last_update" = f."last_update"
-
-
-
-
-SELECT CONCAT("a."first_name",' ',a."last_name") AS nombre_actor,
-FROM "actor" AS a;
 INNER JOIN "film_actor" AS fa
 ON a."actor_id" = fa."actor_id"
-INNER JOIN "film_actor
-ON f."last_update" = a."last_update"
-WHERE CONCAT("a."first_name",' ',a."last_name") = 'EGG IGBY'
-
-
-SELECT a."first_name", a."last_name"
-FROM "actor" AS a
-INNER JOIN "film_actor" AS fa ON a."actor_id" = fa."actor_id"
-INNER JOIN "film" AS f ON fa."film_id" = f."film_id"
+INNER JOIN "film" AS f
+ON f."film_id" = fa."film_id"
 WHERE f."title" = 'EGG IGBY';
+
+
+-- 18. Selecciona todos los nombres de las películas únicos.
+
+SELECT DISTINCT "title"
+FROM "film" AS a;
+
+-- 19. Encuentra el título de las películas que son comedias y tienen una duración mayor a 180 minutos en la tabla “film”
+
+SELECT f."title",
+		c."name",
+		f."length"
+FROM "film" AS f
+INNER JOIN "film_category" AS fc
+ON f."film_id" = fc."film_id"
+INNER JOIN "category" AS c
+ON fc."category_id" = c."category_id"
+WHERE f."length" > 180 AND c."name" = 'Comedy';
+
+-- 20. Encuentra las categorías de películas que tienen un promedio de duración superior a 110 minutos y muestra el nombre de la categoría junto con el promedio de duración.
+
+SELECT c."name",
+		f."length"
+FROM "film" AS f
+INNER JOIN "film_category" AS fc
+ON f."film_id" = fc."film_id"
+INNER JOIN "category" AS c
+ON fc."category_id" = c."category_id"
+WHERE f."length" > 110;
+
+-- 21. ¿Cuál es la media de duración del alquiler de las películas?  NO SE SI ESTÁ BIEN O HE DADO MUCHAS VUELTAS
+
+SELECT AVG(f."length")
+FROM "rental" AS r
+INNER JOIN "inventory" AS i
+ON r."inventory_id" = i."inventory_id"
+INNER JOIN "film" AS f
+ON f."film_id" = i."film_id";
+
+
+-- 22. Crea una columna con el nombre y apellidos de todos los actores y actrices.
+
+SELECT CONCAT("first_name",' ',"last_name")
+FROM "actor"
+
+-- 23. Números de alquiler por día, ordenados por cantidad de alquiler de forma descendente.
+
+SELECT COUNT(DATE("rental_date"))
+FROM "rental" AS r
+GROUP BY DATE("rental_date")
+ORDER BY COUNT(DATE("rental_date")) DESC;
+
+-- 24. Encuentra las películas con una duración superior al promedio.
+
+SELECT AVG("length")
+FROM "film" AS f
+
+-- sabemos que la media de duración de las peliculas es de 115 mins. 
+
+SELECT f."title",
+		f."length"
+FROM "film" AS f
+WHERE "length" > (SELECT AVG(f2."length") 
+					FROM "film" AS f2)
+ORDER BY f."length" ASC 
+
+-- está correctamente calculado, ya que vemos como la película que menos minutos tiene pero más que la media es WORDS HUNTER
+
+-- 25. Averigua el número de alquileres registrados por mes. REVISAR
+
+SELECT 
+    EXTRACT(YEAR FROM r."rental_date") AS "año",
+    EXTRACT(MONTH FROM r."rental_date") AS "mes",
+    COUNT(*) AS "total_alquileres"
+FROM rental r
+GROUP BY "año", "mes"
+ORDER BY "año" ASC, "mes" ASC;
+
+
+
+-- 26. Encuentra el promedio, la desviación estándar y varianza del total pagado.
+
+SELECT 
+		AVG("amount") AS promedio,
+		VARIANCE("amount") AS varianza,
+		STDDEV("amount") AS desviacion_estandar
+FROM "payment" AS p;
+
+-- 27. ¿Qué películas se alquilan por encima del precio medio?
+
+SELECT f."title",
+		f."rental_rate"
+FROM "film" AS f
+WHERE "rental_rate" > (SELECT AVG(f2."rental_rate") 
+						FROM "film" AS f2);
+
+SELECT AVG(f."rental_rate")
+FROM "film" AS f;
+
+-- como hemos comprobado en la lista de peliculas, los precios de alquiler deben ser mayor que 2,98
+
+-- 28. Muestra el id de los actores que hayan participado en más de 40 películas.
+
+SELECT "actor_id",
+		COUNT("film_id") AS numero_peliculas
+FROM "film_actor" AS fa
+GROUP BY "actor_id"
+HAVING COUNT("film_id") > 40;
+
+-- 29. Obtener todas las películas y, si están disponibles en el inventario, mostrar la cantidad disponible.
+
+SELECT f."title",
+		COUNT(i."film_id") AS copias_disponibles
+FROM "film" AS f
+INNER JOIN "inventory" AS i
+ON i."film_id" = f."film_id"
+GROUP BY f."film_id"
+ORDER BY copias_disponibles DESC;
+
+-- 30. Obtener los actores y el número de películas en las que ha actuado.
+
+SELECT a."actor_id", 
+		CONCAT(a."first_name",' ',a."last_name") AS nombre_actores,
+		COUNT(fa.film_id) AS numero_peliculas
+FROM "actor" AS a
+INNER JOIN "film_actor" AS fa
+ON fa."actor_id" = a."actor_id"
+GROUP BY a."actor_id"
+ORDER BY numero_peliculas DESC;
+
+-- 31. Obtener todas las películas y mostrar los actores que han actuado en ellas, incluso si algunas películas no tienen actores asociados.
+
+SELECT f."title",
+		CONCAT(a."first_name",' ',a."last_name") AS nombre_actores
+FROM "film" AS f
+LEFT JOIN "film_actor" AS fa
+ON fa."film_id" = f."film_id"
+LEFT JOIN "actor" AS a
+ON a."actor_id" = fa."actor_id"
+ORDER BY f."title",
+			nombre_actores;
+
+-- 32. Obtener todos los actores y mostrar las películas en las que han actuado, incluso si algunos actores no han actuado en ninguna película.
+
+SELECT a."actor_id",
+		CONCAT(a."first_name",' ',a."last_name") AS nombre_actores,
+		f."title" AS pelicula
+FROM "film" AS f
+RIGHT JOIN "film_actor" AS fa
+ON fa."film_id" = f."film_id"
+RIGHT JOIN "actor" AS a
+ON a."actor_id" = fa."actor_id"
+ORDER BY f."title",
+			a."actor_id";
+
+-- 33. Obtener todas las películas que tenemos y todos los registros de alquiler.
+
+SELECT f."film_id",
+		f."title" AS peliculas,
+		r."rental_id",
+		r."rental_date",
+		r."return_date",
+		CONCAT(c."first_name",' ',c."last_name")
+FROM "film" AS f 
+FULL JOIN "inventory" AS i
+ON i."film_id" = f."film_id"
+FULL JOIN "rental" AS r
+ON r."inventory_id" = i."inventory_id"
+LEFT JOIN "customer" AS c
+ON c."customer_id" = r."customer_id"
+ORDER BY f."title",
+			r."rental_date";
+
+-- 34. Encuentra los 5 clientes que más dinero se hayan gastado con nosotros.
+
+SELECT CONCAT(c."first_name",' ',c."last_name") AS nombre_completo,
+		SUM(p."amount") AS total_gastado
+FROM "customer" AS c
+INNER JOIN "rental" AS r
+ON r."customer_id" = c."customer_id"
+INNER JOIN "payment" AS p
+ON p."customer_id" = c."customer_id"
+GROUP BY c."customer_id",
+			nombre_completo
+ORDER BY total_gastado DESC
+LIMIT 5;
+
+-- 35. Selecciona todos los actores cuyo primer nombre es ' Johnny'.
+
+SELECT *
+FROM "actor" AS a
+WHERE "first_name" = 'JOHNNY'
+
+
+-- 36. Renombra la columna “first_name” como Nombre y “last_name” como Apellido.
+
+SELECT "first_name" AS Nombre,
+		"last_name" AS Apellido
+FROM "actor" AS a
+
+-- 37. Encuentra el ID del actor más bajo y más alto en la tabla actor.
+
+SELECT MIN("actor_id") AS ID_mas_bajo,
+		MAX("actor_id") AS ID_mas_alto
+FROM "actor" AS a;
+
+-- 38. Cuenta cuántos actores hay en la tabla “actor”
+
+SELECT COUNT("actor_id")
+FROM "actor" AS a;
+
+-- 39. Selecciona todos los actores y ordénalos por apellido en orden ascendente.
+
+SELECT *
+FROM "actor" AS a
+ORDER BY "last_name" ASC
+
+-- 40. Selecciona las primeras 5 películas de la tabla “film”
+
+SELECT "title"
+FROM "film" AS f
+ORDER BY "title"
+LIMIT 5;
+
+
+-- 41. Agrupa los actores por su nombre y cuenta cuántos actores tienen el mismo nombre. ¿Cuál es el nombre más repetido?
+
+SELECT "first_name",
+		COUNT("first_name") AS numero
+FROM "actor" AS a
+GROUP BY "first_name"
+ORDER BY numero DESC
+LIMIT 5;
+
+-- 42. Encuentra todos los alquileres y los nombres de los clientes que los realizaron.
+
+SELECT *
+FROM
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
