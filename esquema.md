@@ -1,6 +1,6 @@
 # Esquema de la Base de Datos
 
-Este proyecto utiliza una base de datos relacional que simula la gestión de un videoclub. A continuación, se describen las principales tablas y sus relaciones:
+Este proyecto utiliza una base de datos relacional. A continuación, se describen las principales tablas y sus relaciones:
 
 ### Tablas principales
 
@@ -35,7 +35,7 @@ Este proyecto utiliza una base de datos relacional que simula la gestión de un 
   - Clientes registrados.
 
 - **staff**
-  - Trabajadores del videoclub.
+  - Trabajadores.
 
 - **store**
   - Tiendas físicas.
