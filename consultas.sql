@@ -708,6 +708,7 @@ ORDER BY total_alquileres DESC;
 
 
 -- Fin del archivo de consultas
+-- Última actualización: 3 de junio de 2025
 
 
 
