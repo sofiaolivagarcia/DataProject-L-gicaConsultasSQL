@@ -62,17 +62,17 @@ Durante el desarrollo del proyecto se aplicaron los siguientes conocimientos:
   Crear vistas para optimizar consultas frecuentes.
   Utilizar estructuras temporales para almacenar información.
 
-## Buenas Prácticas Aplicadas
+## ✅ Buenas Prácticas Aplicadas
 
-- Uso de alias en las tablas y columnas para mayor legibilidad.
+- Uso de alias (AS) en las tablas y columnas para mayor legibilidad.
 - Comentarios en las consultas para facilitar su comprensión.
 - Estandarización de nombres de columnas y tablas.
 - Optimización de consultas para mejorar el rendimiento.
 
-## Autores
+## 👩‍💻 Autores
 
 Sofía Oliva García
-Este repositorio será actualizado según se realicen mejoras en las consultas y la estructura de la base de datos.
+Repositorio actualizado para entregar el proyecto final del bootcamp de Data Science en ThePower.
 
 
 
