@@ -139,7 +139,7 @@ FROM "payment" AS p;
 SELECT CONCAT("first_name",' ',"last_name") AS nombre_cliente,
 		"customer_id"
 FROM "customer" AS c
-ORDER BY "customer_id"
+ORDER BY "customer_id" DESC
 LIMIT 10;
 
 -- 17. Encuentra el nombre y apellido de los actores que aparecen en la película con título ‘Egg Igby’.
@@ -173,16 +173,15 @@ WHERE f."length" > 180 AND c."name" = 'Comedy';
 
 -- 20. Encuentra las categorías de películas que tienen un promedio de duración superior a 110 minutos y muestra el nombre de la categoría junto con el promedio de duración.
 
-SELECT c."name",
-		f."length"
+SELECT c."name" AS categoria,
+       AVG(f."length") AS promedio_duracion
 FROM "film" AS f
-INNER JOIN "film_category" AS fc
-ON f."film_id" = fc."film_id"
-INNER JOIN "category" AS c
-ON fc."category_id" = c."category_id"
-WHERE f."length" > 110;
+INNER JOIN "film_category" AS fc ON f."film_id" = fc."film_id"
+INNER JOIN "category" AS c ON fc."category_id" = c."category_id"
+GROUP BY c."name"
+HAVING AVG(f."length") > 110;
 
--- 21. ¿Cuál es la media de duración del alquiler de las películas?  NO SE SI ESTÁ BIEN O HE DADO MUCHAS VUELTAS
+-- 21. ¿Cuál es la media de duración del alquiler de las películas?  
 
 SELECT AVG(f."length")
 FROM "rental" AS r
@@ -194,15 +193,17 @@ ON f."film_id" = i."film_id";
 
 -- 22. Crea una columna con el nombre y apellidos de todos los actores y actrices.
 
-SELECT CONCAT("first_name",' ',"last_name")
+SELECT CONCAT("first_name",' ',"last_name") AS nombre_completo
 FROM "actor"
 
 -- 23. Números de alquiler por día, ordenados por cantidad de alquiler de forma descendente.
 
-SELECT COUNT(DATE("rental_date"))
-FROM "rental" AS r
-GROUP BY DATE("rental_date")
-ORDER BY COUNT(DATE("rental_date")) DESC;
+SELECT DATE("rental_date") AS fecha,
+       COUNT(*) AS total_alquileres
+FROM "rental"
+GROUP BY fecha
+ORDER BY total_alquileres DESC;
+
 
 -- 24. Encuentra las películas con una duración superior al promedio.
 
@@ -343,14 +344,14 @@ LIMIT 5;
 
 SELECT *
 FROM "actor" AS a
-WHERE "first_name" = 'JOHNNY'
-
+WHERE "first_name" ILIKE 'JOHNNY';
+--Usamos ILIKE para que no tenga en cuenta mayúsculas y minúsculas
 
 -- 36. Renombra la columna “first_name” como Nombre y “last_name” como Apellido.
 
 SELECT "first_name" AS Nombre,
 		"last_name" AS Apellido
-FROM "actor" AS a
+FROM "actor" AS a;
 
 -- 37. Encuentra el ID del actor más bajo y más alto en la tabla actor.
 
@@ -408,11 +409,9 @@ ORDER BY r."rental_date" DESC;
 
 -- 44. Realiza un CROSS JOIN entre las tablas film y category. ¿Aporta valor esta consulta? ¿Por qué? Deja después de la consulta la contestación.
 
-SELECT  r."rental_id",
-   		 r."rental_date",
-   		 CONCAT(c."first_name", ' ', c."last_name") AS "cliente"
-FROM "rental" AS r
-CROSS JOIN "customer" AS c;
+SELECT f."title", c."name"
+FROM "film" AS f
+CROSS JOIN "category" AS c;
 
 -- No aporta valor, ya que el CROSS JOIN genera un producto cartesiano. No da información real, ya que mezcla uno con otro sin ningun sentido lógico.
 
@@ -437,15 +436,10 @@ ORDER BY actores;
 
 -- 46. Encuentra todos los actores que no han participado en películas.
 
-SELECT CONCAT(a."first_name", ' ', a."last_name") AS actores,
-		f."title"
+SELECT CONCAT(a."first_name", ' ', a."last_name") AS actores
 FROM "actor" AS a
-FULL OUTER JOIN "film_actor" AS fa
-ON fa."actor_id" = a."actor_id"
-LEFT JOIN "film" AS f
-ON fa."film_id" = f."film_id"
-WHERE f."title" IS NULL;
-
+LEFT JOIN "film_actor" AS fa ON a."actor_id" = fa."actor_id"
+WHERE fa."film_id" IS NULL;
 -- No hay actores que no hayan participado en ninguna película
 
 -- 47. Selecciona el nombre de los actores y la cantidad de películas en las que han participado.
@@ -485,7 +479,8 @@ SELECT CONCAT(c."first_name", ' ', c."last_name") AS clientes,
 FROM "customer" AS c
 INNER JOIN "rental" AS r
 ON c."customer_id" = r."customer_id"
-GROUP BY clientes;
+GROUP BY c."customer_id", c."first_name", c."last_name";
+
 
 -- 50. Calcula la duración total de las películas en la categoría 'Action'.
 
@@ -499,11 +494,11 @@ FROM "category" AS c
 
 -- 51. Crea una tabla temporal llamada “cliente_rentas_temporal” para almacenar el total de alquileres por cliente.
 
-CREATE TEMP TABLE cliente__rentas__temporal AS
-SELECT 'customer_id' AS clientes,
-		COUNT(rental_id) AS total_alquileres
-FROM "rental" AS r
-GROUP BY "customer_id";
+CREATE TEMP TABLE cliente_rentas_temporal AS
+SELECT customer_id AS cliente_id,
+       COUNT(rental_id) AS total_alquileres
+FROM rental
+GROUP BY customer_id;
 
 - veo la tabla creada
 
@@ -563,19 +558,8 @@ ORDER BY a."last_name";
 -- 55. Encuentra el nombre y apellido de los actores que han actuado en películas que se alquilaron después de que la película ‘Spartacus
 	--Cheaper’ se alquilara por primera vez. Ordena los resultados alfabéticamente por apellido.
 
-SELECT MIN(r."rental_date") AS primera_fecha
-FROM "film" AS f
-JOIN "inventory" AS i 
-ON f."film_id" = i."film_id"
-JOIN "rental" AS r 
-ON i."inventory_id" = r."inventory_id"
-WHERE f."title" = 'Spartacus Cheaper';
-
-		--No hay ninguna película que se llame con ese título (nos da NULL). Igualmente a continuación se muestra como sería la consulta
-MIRAR REVISAR 
-
 SELECT DISTINCT a."first_name" AS nombre, 
-				a."last_name" AS apellido
+                a."last_name" AS apellido
 FROM "actor" AS a
 INNER JOIN "film_actor" AS fa 
 ON a."actor_id" = fa."actor_id"
@@ -583,30 +567,18 @@ INNER JOIN "film" AS f
 ON fa."film_id" = f."film_id"
 INNER JOIN "inventory" AS i 
 ON f."film_id" = i."film_id"
-INNER JOIN "rental" AS r 
-ON i."inventory_id" = r."inventory_id"
-WHERE r.rental_date > 'FECHA QUE NOS DE LA CONSULTA ANTERIOR'
-ORDER BY a.last_name, a.first_name;
+INNER JOIN "rental" AS r ON i."inventory_id" = r."inventory_id"
+WHERE r."rental_date" > (
+    SELECT MIN(r2."rental_date")
+    FROM "film" AS f2
+    JOIN "inventory" AS i2 ON f2."film_id" = i2."film_id"
+    JOIN "rental" AS r2 ON i2."inventory_id" = r2."inventory_id"
+    WHERE f2."title" ILIKE 'Spartacus Cheaper'
+)
+ORDER BY a."last_name", a."first_name";
 
 
 -- 56. Encuentra el nombre y apellido de los actores que no han actuado en ninguna película de la categoría ‘Music’.
-
-
-
-MAL MAL 
-
-SELECT DISTINCT
-		fa."first_name" AS nombre,
-		fa."last_name" AS apellido
-FROM "category" AS c
-INNER JOIN "film_catgeory" AS fc
-ON c."category_id" = fc."category_id"
-INNER JOIN "film_actor" AS fa
-ON fc."film_id" = fa."film_id"
-INNER JOIN "actor" AS a
-ON a."actor_id" = fa."actor_id"
-
-
 
 SELECT a."first_name", 
 		a."last_name"
@@ -619,11 +591,6 @@ WHERE a.actor_id NOT IN (
     WHERE c.name = 'Music'
 )
 ORDER BY a.last_name, a.first_name;
-
-
-
-
-
 
 
 -- 57. Encuentra el título de todas las películas que fueron alquiladas por más de 8 días.
@@ -664,29 +631,16 @@ ORDER BY "title" ASC;
 -- 60. Encuentra los nombres de los clientes que han alquilado al menos 7 películas distintas. 
 		-- Ordena los resultados alfabéticamente por apellido.
 
-SELECT c."first_name",
-		c."last_name"
+SELECT c."first_name", 
+       c."last_name"
 FROM "customer" AS c
-INNER JOIN "rental" AS r
-ON r."customer_id" = c."customer_id"
-
-
-
---NO LO ENTIENDO
-
-INNER JOIN "inventory" AS i
+JOIN "rental" AS r 
+ON c."customer_id" = r."customer_id"
+JOIN "inventory" AS i 
 ON r."inventory_id" = i."inventory_id"
-INNER JOIN "film" AS f
-ON i."film_id" = f."film_id"
-
-SELECT c.first_name, c.last_name
-FROM customer c
-JOIN rental r ON c.customer_id = r.customer_id
-JOIN inventory i ON r.inventory_id = i.inventory_id
-GROUP BY c.customer_id, c.first_name, c.last_name
-HAVING COUNT(DISTINCT i.film_id) >= 7
-ORDER BY c.last_name, c.first_name;
-
+GROUP BY c."customer_id", c."first_name", c."last_name"
+HAVING COUNT(DISTINCT i."film_id") >= 7
+ORDER BY c."last_name", c."first_name";
 
 
 --61. Encuentra la cantidad total de películas alquiladas por categoría y muestra el nombre de la 
@@ -717,7 +671,7 @@ INNER JOIN "film_category" AS fc
 ON f."film_id" = fc."film_id"
 INNER JOIN "category" AS c
 ON fc."category_id" = c."category_id"
-WHERE f."release_year" = '2006'
+WHERE f."release_year" = 2006
 GROUP BY c."name"
 ORDER BY peliculas_totales;
 
@@ -753,8 +707,7 @@ ORDER BY total_alquileres DESC;
 
 
 
-
-
+-- Fin del archivo de consultas
 
 
 
