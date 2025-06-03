@@ -1,27 +1,40 @@
-# DataProject-LogicaConsultasSQL
-## Descripción
-Este proyecto contiene una serie de consultas SQL realizadas sobre una base de datos en PostgreSQL. Se han aplicado diferentes tipos de consultas, incluyendo selecciones simples, uniones entre tablas, subconsultas, vistas y estructuras de datos temporales.
+# 📊 DataProject – Lógica de Consultas SQL
 
-## Requisitos
-Para ejecutar este proyecto necesitas las siguientes herramientas:
+Este proyecto contiene una colección de consultas SQL desarrolladas sobre una base de datos PostgreSQL. El objetivo es demostrar competencias clave en el manejo de SQL, como consultas simples y complejas, relaciones entre tablas, subconsultas, vistas y estructuras temporales.
+
+## 🧠 Conocimientos Aplicados
+
+Durante el desarrollo del proyecto se aplicaron los siguientes conocimientos:
+
+- Manejo de la herramienta **DBeaver**
+- Consultas sobre una sola tabla
+- Relaciones entre múltiples tablas
+- Subconsultas
+- Vistas SQL
+- Tablas temporales
+- Buenas prácticas de codificación SQL
+
+## 🛠 Requisitos
+
 - PostgreSQL
-- DBeaver
+- DBeaver (u otro cliente SQL)
 
-## Estructura del Repositorio
+## 📁 Estructura del Repositorio
 
-Este repositorio contiene los siguientes archivos:
+| Archivo                  | Descripción |
+|--------------------------|-------------|
+| `README.md`              | Explicación del proyecto y pasos seguidos |
+| `BBDD_ProyectoSQL.sql`   | Script SQL con la creación y carga de la base de datos |
+| `consultas.sql`          | Consultas SQL resueltas con enunciado como comentario |
+| `esquema.md`             | Esquema de la base de datos proporcionado |
 
-- README.md: Este archivo con la descripción del proyecto.
+---
 
-- BBDD_ProyectoSQL.sql: Archivo SQL que contiene la estructura y datos de la base de datos.
-
-- consultas.sql: Archivo con todas las consultas realizadas.
-
-- esquema.md: Esquema de la base de datos utilizada en el proyecto.
+## 🚀 Instalación y Ejecución
 
 ## Instalación y Configuración
 
-1. Configurar PostgreSQL
+### 1. Configurar PostgreSQL
 
   Descarga e instala PostgreSQL.
   Asegúrate de que el servicio de PostgreSQL esté corriendo.
@@ -30,13 +43,13 @@ Este repositorio contiene los siguientes archivos:
   Conéctate a la base de datos:
   \c ProyectoSQL;
 
-2. Importar la Base de Datos en DBeaver
+### 2. Importar la Base de Datos en DBeaver
 
   Abre DBeaver y conéctate a PostgreSQL.
   Abre la consola SQL y carga el archivo BBDD_Proyecto.sql.
   Ejecuta el script para crear todas las tablas y datos.
 
-3. Ejecutar las Consultas
+### 3. Ejecutar las Consultas
 
   Abre consultas.sql en la consola de DBeaver.
   Ejecuta cada consulta para ver los resultados.
