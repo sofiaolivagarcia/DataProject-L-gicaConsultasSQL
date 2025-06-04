@@ -17,7 +17,7 @@ Durante el desarrollo del proyecto se aplicaron los siguientes conocimientos:
 ## 🛠 Requisitos
 
 - PostgreSQL
-- DBeaver (u otro cliente SQL)
+- DBeaver
 
 ## 📁 Estructura del Repositorio
 
