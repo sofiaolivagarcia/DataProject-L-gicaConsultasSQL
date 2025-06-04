@@ -71,7 +71,7 @@ Durante el desarrollo del proyecto se aplicaron los siguientes conocimientos:
 
 ## 👩‍💻 Autores
 
-Sofía Oliva García
+Sofía Oliva García.
 Repositorio actualizado para entregar el proyecto final del bootcamp de Data Science en ThePower.
 
 
