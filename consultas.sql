@@ -50,7 +50,7 @@ ORDER BY "length" ASC;
 
 SELECT *
 FROM "actor" AS a
-WHERE "last_name" = 'ALLEN';
+WHERE "last_name" = 'Allen';
 
 
 -- 7. Encuentra la cantidad total de películas en cada clasificación de la tabla “film” y muestra la clasificación junto con el recuento.
@@ -151,7 +151,7 @@ INNER JOIN "film_actor" AS fa
 ON a."actor_id" = fa."actor_id"
 INNER JOIN "film" AS f
 ON f."film_id" = fa."film_id"
-WHERE f."title" = 'EGG IGBY';
+WHERE f."title" ILIKE 'Egg Igby';
 
 
 -- 18. Selecciona todos los nombres de las películas únicos.
@@ -183,12 +183,9 @@ HAVING AVG(f."length") > 110;
 
 -- 21. ¿Cuál es la media de duración del alquiler de las películas?  
 
-SELECT AVG(f."length")
-FROM "rental" AS r
-INNER JOIN "inventory" AS i
-ON r."inventory_id" = i."inventory_id"
-INNER JOIN "film" AS f
-ON f."film_id" = i."film_id";
+SELECT AVG(DATE_PART('day', r.return_date - r.rental_date)) AS media_dias_alquiler
+FROM rental AS r
+WHERE r.return_date IS NOT NULL;
 
 
 -- 22. Crea una columna con el nombre y apellidos de todos los actores y actrices.
@@ -328,17 +325,19 @@ ORDER BY f."title",
 
 -- 34. Encuentra los 5 clientes que más dinero se hayan gastado con nosotros.
 
-SELECT CONCAT(c."first_name",' ',c."last_name") AS nombre_completo,
-		SUM(p."amount") AS total_gastado
-FROM "customer" AS c
-INNER JOIN "rental" AS r
-ON r."customer_id" = c."customer_id"
-INNER JOIN "payment" AS p
-ON p."customer_id" = c."customer_id"
-GROUP BY c."customer_id",
-			nombre_completo
+SELECT 
+    CONCAT(c.first_name, ' ', c.last_name) AS nombre_completo,
+    SUM(p.amount) AS total_gastado
+FROM customer AS c
+JOIN rental AS r 
+ON r.customer_id = c.customer_id
+JOIN payment AS p 
+ON p.rental_id = r.rental_id
+GROUP BY c.customer_id, 
+           nombre_completo
 ORDER BY total_gastado DESC
 LIMIT 5;
+
 
 -- 35. Selecciona todos los actores cuyo primer nombre es ' Johnny'.
 
@@ -457,20 +456,20 @@ ORDER BY actores;
 
 -- 48. Crea una vista llamada “actor_num_peliculas” que muestre los nombres de los actores y el número de películas en las que han participado.
 
+CREATE OR REPLACE VIEW actor_num_peliculas AS
+SELECT 
+    CONCAT(a.first_name, ' ', a.last_name) AS actores,
+    COUNT(f.film_id) AS num_peliculas
+FROM actor AS a
+INNER JOIN film_actor AS fa ON fa.actor_id = a.actor_id
+LEFT JOIN film AS f ON fa.film_id = f.film_id
+GROUP BY actores;
 
-CREATE VIEW "actor_num_peliculas" AS
-SELECT CONCAT(a."first_name", ' ', a."last_name") AS actores,
- 		COUNT (f."film_id")
-FROM "actor" AS a
-	INNER JOIN "film_actor" AS fa
-		ON fa."actor_id" = a."actor_id"
-	LEFT JOIN "film" AS f
-		ON fa."film_id" = f."film_id"
-	GROUP BY actores
-	ORDER BY actores;
 
-SELECT * 
-FROM actor_num_peliculas;
+SELECT *
+FROM actor_num_peliculas
+ORDER BY actores;
+
 
 -- 49. Calcula el número total de alquileres realizados por cada cliente.
 
@@ -502,7 +501,7 @@ GROUP BY customer_id;
 
 - veo la tabla creada
 
-SELECT * FROM cliente__rentas__temporal;
+SELECT * FROM cliente_rentas_temporal;
 
 -- 52. Crea una tabla temporal llamada “peliculas_alquiladas” que almacene las películas que han sido alquiladas al menos 10 veces.
 
